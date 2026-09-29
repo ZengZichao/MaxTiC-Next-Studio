@@ -41,7 +41,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "ruff>=0.6", "mypy>=1.8", "pyinstaller>=6.0"]
+# tomli 只在 Python < 3.11 上补齐标准库还没有的 tomllib（打包 spec 要读 pyproject.toml）。
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.8",
+    "pyinstaller>=6.0",
+    "tomli>=1.1.0; python_version < '3.11'",
+]
 
 [project.scripts]
 maxtic-studio = "maxtic_studio.main:main"

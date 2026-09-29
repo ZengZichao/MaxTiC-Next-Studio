@@ -21,7 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        # 覆盖 pyproject 声明的 requires-python >=3.9（含 3.9：PySide6 在该版本上解析到
+        # 6.10.x，套件在 3.9 上实测通过）。
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

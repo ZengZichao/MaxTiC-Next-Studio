@@ -13,8 +13,14 @@
 """
 import os
 import sys
-import tomllib
 from pathlib import Path
+
+# 打包脚本承诺支持的解释器与 pyproject 的 requires-python 一致（>=3.9），
+# 而 tomllib 是 3.11 才进标准库的；缺它时 PyInstaller 读 spec 就直接 ImportError。
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11
+    import tomli as tomllib
 
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
