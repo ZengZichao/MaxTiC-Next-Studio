@@ -1,0 +1,87 @@
+[build-system]
+# setuptools>=77：`license` 采用 PEP 639 的 SPDX 表达式字符串，且许可 classifiers 已弃用。
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MaxTiC-Next-Studio"
+version = "0.1.0"
+description = "Native desktop front-end (PySide6) for MaxTiC-Next: rank species-tree internal nodes by Maximum Time Consistency."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "CECILL-2.1"
+authors = [
+    # 原版 MaxTiC 作者：CeCILL 2.1 要求保留原作者署名。
+    { name = "Eric Tannier (original MaxTiC)", email = "eric.tannier@inria.fr" },
+    # 桌面端与 Python 3 重写的作者/维护者（ORCID 0000-0001-6553-970X，见 CITATION.cff）。
+    { name = "Zichao Zeng (曾子超)", email = "zengzichao@sjtu.edu.cn" },
+]
+keywords = ["phylogenetics", "HGT", "MaxTiC", "time-consistency", "ranking", "gui", "desktop", "pyside6"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Desktop Environment",
+    "Operating System :: OS Independent",
+]
+# 核心算法来自独立仓库 MaxTiC-Next（https://github.com/ZengZichao/MaxTiC-Next）。
+# 该包尚未发布到 PyPI，安装本仓库前先按仓库地址装它：
+#   pip install "git+https://github.com/ZengZichao/MaxTiC-Next.git"
+# 一旦发布到 PyPI，下面这条依赖无需改动即可由索引解析。
+dependencies = [
+    "MaxTiC-Next>=0.1.0",
+    "PySide6>=6.5",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6", "mypy>=1.8", "pyinstaller>=6.0"]
+
+[project.scripts]
+maxtic-studio = "maxtic_studio.main:main"
+
+[project.urls]
+Homepage = "https://github.com/ZengZichao/MaxTiC-Next-Studio"
+Repository = "https://github.com/ZengZichao/MaxTiC-Next-Studio"
+Changelog = "https://github.com/ZengZichao/MaxTiC-Next-Studio/releases"
+# 本仓库依赖的核心算法仓库
+"Core algorithm" = "https://github.com/ZengZichao/MaxTiC-Next"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# 图标母版随包分发：安装态与 PyInstaller 冻结态都能按 __file__ 找到
+maxtic_studio = ["assets/*.svg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# 与核心仓库同一套"能抓真 bug"的规则族；纯风格项（I/UP/W/E501 等）
+# 纯风格项交给格式化器，不混入功能提交。
+select = ["E4", "E7", "E9", "F", "B", "PLR0124"]
+
+[tool.mypy]
+# 用 3.12 语义检查：numpy 2.x 的类型存根用到 3.12 的 `type` 语句，
+# 钉在更低版本会让 mypy 解析存根时直接报错而放弃检查（与核心仓库同策）。
+python_version = "3.12"
+mypy_path = "src"
+files = ["src/maxtic_studio"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["PySide6.*", "matplotlib.*"]
+ignore_missing_imports = true
+ignore_errors = true

@@ -1,0 +1,6 @@
+# MaxTiC-Next Studio 运行依赖。
+# 核心算法来自独立仓库 MaxTiC-Next；它尚未发布到 PyPI，
+# 故按仓库地址安装（发布后可改回 `MaxTiC-Next>=0.1.0`）。
+git+https://github.com/ZengZichao/MaxTiC-Next.git
+PySide6>=6.5
+matplotlib>=3.7
