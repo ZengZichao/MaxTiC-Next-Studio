@@ -1,5 +1,7 @@
 # MaxTiC-Next Studio
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23053057.svg)](https://doi.org/10.5281/zenodo.23053057)
+
 > Native desktop front-end (PySide6 / Qt 6) · bilingual UI · light & dark themes · no browser engine
 >
 > [中文](README.md)

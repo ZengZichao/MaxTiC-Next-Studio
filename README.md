@@ -1,5 +1,7 @@
 # MaxTiC-Next Studio
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23053057.svg)](https://doi.org/10.5281/zenodo.23053057)
+
 > 原生桌面端（PySide6 / Qt 6）· 中英双语 · 亮暗双主题 · 免浏览器引擎
 >
 > 🌐 [English](README.en.md)
