@@ -2,14 +2,10 @@ cff-version: 1.2.0
 message: 如果使用 MaxTiC-Next Studio，请同时引用本图形前端、其核心算法 MaxTiC-Next 与原始 MaxTiC 论文。
 title: "MaxTiC-Next-Studio: a native PySide6 desktop front-end for MaxTiC-Next"
 authors:
-  - name: "MaxTiC-Next Studio project"
   - given-names: Zichao
     family-names: Zeng
     email: zengzichao@sjtu.edu.cn
     orcid: https://orcid.org/0000-0001-6553-970X
-  - given-names: Eric
-    family-names: Tannier
-    email: eric.tannier@inria.fr
 repository-code: https://github.com/ZengZichao/MaxTiC-Next-Studio
 url: https://github.com/ZengZichao/MaxTiC-Next-Studio
 version: 0.1.0
@@ -24,13 +20,25 @@ keywords:
   - time-consistency
   - desktop-gui
   - pyside6
-preferred-citation:
-  type: article
-  authors:
-    - given-names: Eric
-      family-names: Tannier
-  title: "MaxTiC: Fast ranking of a phylogenetic tree by Maximum Time Consistency with lateral gene transfers"
-  identifiers:
-    - type: doi
-      value: 10.1101/127548
-  url: https://doi.org/10.1101/127548
+references:
+  - type: software
+    authors:
+      - given-names: Zichao
+        family-names: Zeng
+        orcid: https://orcid.org/0000-0001-6553-970X
+    title: "MaxTiC-Next: a Python 3 rewrite of MaxTiC with reproducible rankings, multi-format ALE adapters, robustness analysis and HTML reporting"
+    version: 0.1.0
+    repository-code: https://github.com/ZengZichao/MaxTiC-Next
+    url: https://zenodo.org/records/23053051
+    identifiers:
+      - type: doi
+        value: 10.5281/zenodo.23053051
+  - type: article
+    authors:
+      - given-names: Eric
+        family-names: Tannier
+    title: "MaxTiC: Fast ranking of a phylogenetic tree by Maximum Time Consistency with lateral gene transfers"
+    identifiers:
+      - type: doi
+        value: 10.1101/127548
+    url: https://doi.org/10.1101/127548
