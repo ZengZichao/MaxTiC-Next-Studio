@@ -8,12 +8,12 @@ authors:
     orcid: https://orcid.org/0000-0001-6553-970X
 repository-code: https://github.com/ZengZichao/MaxTiC-Next-Studio
 url: https://github.com/ZengZichao/MaxTiC-Next-Studio
-version: 0.1.0
-date-released: 2026-09-29
+version: 0.1.1
+date-released: 2026-09-30
 license: CECILL-2.1
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.23053057
+    value: 10.5281/zenodo.23053056
 keywords:
   - phylogenetics
   - horizontal-gene-transfer
@@ -27,12 +27,12 @@ references:
         family-names: Zeng
         orcid: https://orcid.org/0000-0001-6553-970X
     title: "MaxTiC-Next: a Python 3 rewrite of MaxTiC with reproducible rankings, multi-format ALE adapters, robustness analysis and HTML reporting"
-    version: 0.1.0
+    version: 0.1.1
     repository-code: https://github.com/ZengZichao/MaxTiC-Next
-    url: https://zenodo.org/records/23053051
+    url: https://doi.org/10.5281/zenodo.23053050
     identifiers:
       - type: doi
-        value: 10.5281/zenodo.23053051
+        value: 10.5281/zenodo.23053050
   - type: article
     authors:
       - given-names: Eric

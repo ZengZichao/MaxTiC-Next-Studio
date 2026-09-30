@@ -126,7 +126,7 @@ _LOCAL_PATH_MARKERS = (
 )
 _DOC_FILES = (
     "README.md",
-    "README.en.md",
+    "README.zh.md",
     "requirements.txt",
     "pyproject.toml",
     "docs/studio.md",
@@ -149,7 +149,7 @@ def test_docs_never_describe_the_dependency_by_local_path(rel):
     "rel",
     (
         "README.md",
-        "README.en.md",
+        "README.zh.md",
         "requirements.txt",
         "pyproject.toml",
         "docs/studio.md",
