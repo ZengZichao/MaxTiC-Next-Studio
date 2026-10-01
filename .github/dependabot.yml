@@ -9,6 +9,8 @@ updates:
       prefix: "chore(deps)"
     # pip 生态的 ignore/update-types 必须显式给出 dependency-name，
     # 否则 Dependabot 报 "did not contain a required property of 'dependency-name'"。
+    # 屏蔽 pip 依赖的 semver-major：GUI 框架（PySide6/matplotlib）跨大版本
+    # API 变动大，保留人工升级节奏；安全通告由 Dependabot security updates 单独兜底。
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -22,9 +24,7 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(ci)"
-    # 屏蔽 major 升级：action 跨大版本会更换 Node 运行时
-    # （如 actions/checkout 4→7 从 Node 20 跳到 Node 24），
-    # 未经人工验证直接合并会破坏 CI 流水线。
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    # actions 不再屏蔽 major：main 分支保护已把 ci-ok 设为必需检查，
+    # 升级若破坏 CI 会被必需状态检查拦下、无法合入。
+    # （checkout@v7 / setup-python@v7 曾实测全绿；继续屏蔽只会在 GitHub
+    #  淘汰 Node 20 运行时后把升级债攒到一起一次性爆发。）
