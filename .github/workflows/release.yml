@@ -1,0 +1,72 @@
+name: Release
+
+# 打 v* tag 即构建 .app 并发布 GitHub Release（产物命名沿用既有格式
+# MaxTiC-Next-Studio-<version>-macos.zip）。
+# Zenodo webhook 会跟随 GitHub Release 自动更新版本 DOI；
+# CITATION.cff 里除版本号外的元数据（如 Zenodo version DOI）仍需人工补，
+# 本 workflow 会在发布前校验 CITATION.cff 的 version 与 tag 一致。
+
+on:
+  push:
+    tags: ["v*"]
+
+# gh release 需要 contents:write；其余保持只读
+permissions:
+  contents: write
+
+env:
+  CORE_REPO_URL: https://github.com/ZengZichao/MaxTiC-Next
+  # 与 ci.yml 保持一致：核心仓发新版本时两处同步 bump
+  CORE_REF: v0.1.1
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the core package, then Studio
+        run: |
+          python -m pip install --upgrade pip
+          pip install "git+${{ env.CORE_REPO_URL }}.git@${{ env.CORE_REF }}"
+          pip install -e ".[dev]"
+      - name: Check CITATION.cff version matches the tag
+        run: |
+          python - <<'PY'
+          import os, re, sys
+          tag = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          text = open("CITATION.cff", encoding="utf-8").read()
+          m = re.search(r"^version:\s*(\S+)", text, re.M)
+          if not m or m.group(1) != tag:
+              sys.exit(
+                  f"CITATION.cff version ({m.group(1) if m else 'missing'}) != tag ({tag});"
+                  " 先同步 CITATION.cff 再打 tag"
+              )
+          print(f"CITATION.cff version {tag} OK")
+          PY
+      - name: Freeze the bundle
+        run: bash packaging/build_studio_app.sh
+      - name: Smoke-check the bundle
+        # 与 ci.yml 的打包自检同一套断言
+        run: |
+          test -d release/MaxTiC-Next-Studio.app/Contents/MacOS
+          test -d release/MaxTiC-Next-Studio.app/Contents/Resources/examples
+          test -f release/MaxTiC-Next-Studio.app/Contents/Resources/assets/maxtic-studio.svg
+          test -f release/MaxTiC-Next-Studio.app/Contents/Resources/maxtic-studio.icns
+      - name: Zip the bundle
+        run: |
+          cd release
+          zip -qry "MaxTiC-Next-Studio-${GITHUB_REF_NAME#v}-macos.zip" MaxTiC-Next-Studio.app
+      - name: Create GitHub release with the .app asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release/*.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/*.zip \
+              --verify-tag --generate-notes \
+              --title "MaxTiC-Next-Studio $GITHUB_REF_NAME"
+          fi
