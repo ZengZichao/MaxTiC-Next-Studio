@@ -1,6 +1,10 @@
 # MaxTiC-Next Studio
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23053056.svg)](https://doi.org/10.5281/zenodo.23053056)
+[![CI](https://github.com/ZengZichao/MaxTiC-Next-Studio/actions/workflows/ci.yml/badge.svg)](https://github.com/ZengZichao/MaxTiC-Next-Studio/actions/workflows/ci.yml)
+[![License: CeCILL-2.1](https://img.shields.io/badge/License-CeCILL--2.1-blue.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0001--6553--970X-a6ce39?logo=orcid&logoColor=white)](https://orcid.org/0000-0001-6553-970X)
 
 > Native desktop front-end (PySide6 / Qt 6) · bilingual UI · light & dark themes · no browser engine
 >
