@@ -22,43 +22,51 @@
     </linearGradient>
   </defs>
 
-  <!-- 圆角方块底 -->
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#tile)"/>
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#sheen)"/>
-  <rect x="24.5" y="24.5" width="463" height="463" rx="101" fill="none" stroke="#9FE1CB" stroke-opacity="0.28" stroke-width="3"/>
+  <!--
+    macOS 图标栅格：底板必须按 Apple 模板缩放（1024 画布中底板 824，即画布的
+    80.5%）。旧版底板画满整张 512 画布（93.75%），在 Dock 里与其他 app 并排时
+    明显偏大 —— 那不是错觉。这里把整幅图形按 412/480 ≈ 0.8583 缩放并居中，
+    底板即为 412px（50px 边距）、圆角约 93px，与系统图标一致。
+  -->
+  <g transform="translate(256 256) scale(0.8583) translate(-256 -256)">
+    <!-- 圆角方块底 -->
+    <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#tile)"/>
+    <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#sheen)"/>
+    <rect x="24.5" y="24.5" width="463" height="463" rx="101" fill="none" stroke="#9FE1CB" stroke-opacity="0.28" stroke-width="3"/>
 
-  <!-- 谱系树：正交边，4 个现生类群 -->
-  <g fill="none" stroke="#EAF7F2" stroke-width="21" stroke-linecap="round" stroke-linejoin="round">
-    <!-- 根 → 首个内部分叉 -->
-    <path d="M96 256 H182"/>
-    <!-- 第一层分叉的上下两支 -->
-    <path d="M182 138 V374"/>
-    <path d="M182 138 H262"/>
-    <path d="M182 374 H298"/>
-    <!-- 第二层分叉 -->
-    <path d="M262 84 V192"/>
-    <path d="M262 84 H404"/>
-    <path d="M262 192 H404"/>
-    <path d="M298 320 V428"/>
-    <path d="M298 320 H404"/>
-    <path d="M298 428 H404"/>
-  </g>
+    <!-- 谱系树：正交边，4 个现生类群 -->
+    <g fill="none" stroke="#EAF7F2" stroke-width="21" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 根 → 首个内部分叉 -->
+      <path d="M96 256 H182"/>
+      <!-- 第一层分叉的上下两支 -->
+      <path d="M182 138 V374"/>
+      <path d="M182 138 H262"/>
+      <path d="M182 374 H298"/>
+      <!-- 第二层分叉 -->
+      <path d="M262 84 V192"/>
+      <path d="M262 84 H404"/>
+      <path d="M262 192 H404"/>
+      <path d="M298 320 V428"/>
+      <path d="M298 320 H404"/>
+      <path d="M298 428 H404"/>
+    </g>
 
-  <!-- 横向基因转移：跨越两支的虚线弧 + 箭头 -->
-  <g fill="none" stroke="#FACC15" stroke-width="17" stroke-linecap="round" stroke-dasharray="2 34">
-    <path d="M356 428 C356 300 214 300 214 168"/>
-  </g>
-  <path d="M214 168 l-27 44 h54 z" fill="#FACC15"/>
+    <!-- 横向基因转移：跨越两支的虚线弧 + 箭头 -->
+    <g fill="none" stroke="#FACC15" stroke-width="17" stroke-linecap="round" stroke-dasharray="2 34">
+      <path d="M356 428 C356 300 214 300 214 168"/>
+    </g>
+    <path d="M214 168 l-27 44 h54 z" fill="#FACC15"/>
 
-  <!-- 被点亮的内部节点：MTC 排名对象 -->
-  <circle cx="182" cy="256" r="41" fill="#34C39A" stroke="#04231B" stroke-opacity="0.35" stroke-width="7"/>
-  <circle cx="182" cy="256" r="17" fill="#04231B" fill-opacity="0.55"/>
+    <!-- 被点亮的内部节点：MTC 排名对象 -->
+    <circle cx="182" cy="256" r="41" fill="#34C39A" stroke="#04231B" stroke-opacity="0.35" stroke-width="7"/>
+    <circle cx="182" cy="256" r="17" fill="#04231B" fill-opacity="0.55"/>
 
-  <!-- 现生类群末端点 -->
-  <g fill="#EAF7F2">
-    <circle cx="404" cy="84" r="15"/>
-    <circle cx="404" cy="192" r="15"/>
-    <circle cx="404" cy="320" r="15"/>
-    <circle cx="404" cy="428" r="15"/>
+    <!-- 现生类群末端点 -->
+    <g fill="#EAF7F2">
+      <circle cx="404" cy="84" r="15"/>
+      <circle cx="404" cy="192" r="15"/>
+      <circle cx="404" cy="320" r="15"/>
+      <circle cx="404" cy="428" r="15"/>
+    </g>
   </g>
 </svg>

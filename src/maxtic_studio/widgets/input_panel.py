@@ -67,9 +67,10 @@ def _set_error(widget, on: bool, tooltip: str = ""):
 
 
 class InputPanel(QWidget):
-    """输入面板：物种树 + 约束文件列表 + 输出前缀 + 核心参数。"""
+    """输入面板：物种树 + 约束文件列表 + 输出前缀 + 核心参数 + 示例数据入口。"""
 
     data_changed = Signal()
+    demo_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -141,6 +142,24 @@ class InputPanel(QWidget):
         # buddy 关联
         self.lbl_output_prefix.setBuddy(self.output_prefix_edit)
         tree_layout.addRow(self.lbl_output_prefix, self.output_prefix_edit)
+
+        # ---- 示例数据入口 ----
+        # 「用示例数据演示」是**输入**动作：一键填入输入区，逻辑上属于输入面板，
+        # 而不是结果区（旧版把它放在结果区按钮行里，语义错位）。
+        demo_row = QHBoxLayout()
+        demo_row.setSpacing(M.FIELD_SPACING)
+        self.lbl_demo = QLabel(_("demo_hint"))
+        self.lbl_demo.setObjectName("fieldHint")
+        self.btn_demo = QPushButton(_("action_demo"))
+        self.btn_demo.setObjectName("btn_demo")
+        self.btn_demo.setToolTip(_("demo_hint"))
+        self.btn_demo.clicked.connect(self.demo_requested.emit)
+        demo_row.addStretch()
+        demo_row.addWidget(self.lbl_demo)
+        demo_row.addWidget(self.btn_demo)
+        demo_row_w = QWidget()
+        demo_row_w.setLayout(demo_row)
+        tree_layout.addRow(demo_row_w)
 
         layout.addWidget(self.group_input)
 
@@ -335,6 +354,8 @@ class InputPanel(QWidget):
         self.btn_cons_add.setText(_("button_add"))
         self.btn_cons_remove.setText(_("button_remove"))
         self.btn_cons_clear.setText(_("button_clear"))
+        self.btn_demo.setText(_("action_demo"))
+        self.lbl_demo.setText(_("demo_hint"))
         self.tree_edit.setPlaceholderText(_("species_tree"))
         self.output_prefix_edit.setPlaceholderText(_("output_prefix_hint"))
 

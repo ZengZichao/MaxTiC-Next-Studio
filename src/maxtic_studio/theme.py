@@ -175,6 +175,8 @@ QGroupBox::title {{
 }}
 
 /* ---- 按钮体系 ---- */
+/* 高度统一由 metrics.BUTTON_H 落地（32px）；QSS 内边距三档按钮保持一致，
+   颜色区分主次即可 —— 尺寸不再参与层级表达 */
 QPushButton {{
     background: {t["surface"]};
     color: {t["text_1"]};
@@ -189,11 +191,11 @@ QPushButton:disabled {{ color: {t["text_2"]}; border-color: {t["border"]}; backg
 
 /* 主操作（运行）。字号不写在 QSS 里：QSS 字体不进 sizeHint，
    按钮会按 13px 量宽、按 14px 画字，结果就是文字被边框裁掉。
-   统一由 metrics.primary_font() 设到控件字体上。 */
+   全部按钮统一用基础字号（metrics 落地），这里只保留品牌底色。 */
 QPushButton#btn_run {{
     background: {t["primary"]}; color: {t["on_primary"]};
     border: none; border-radius: 6px;
-    padding: 6px 26px;
+    padding: 4px 14px;
 }}
 QPushButton#btn_run:hover {{ background: {t["primary_hover"]}; }}
 QPushButton#btn_run:pressed {{ background: {t["primary_pressed"]}; }}
@@ -209,7 +211,7 @@ QPushButton#btn_run:focus {{
 QPushButton#btn_cancel {{
     background: {t["surface"]}; color: {t["danger"]};
     border: 1px solid {t["danger"]}; border-radius: 6px;
-    padding: 6px 18px;
+    padding: 4px 14px;
 }}
 QPushButton#btn_cancel:hover {{ background: {t["danger_soft"]}; }}
 QPushButton#btn_cancel:disabled {{ color: {t["text_2"]}; border-color: {t["border"]}; background: {t["surface_alt"]}; }}
@@ -220,18 +222,13 @@ QPushButton#btn_cancel:focus {{
     outline-offset: 2px;
 }}
 
-/* 小工具按钮（日志工具条 / 浏览） */
-QPushButton#btn_small {{
-    padding: 2px 10px; border-radius: 4px;
-}}
-
 /* 工具条上的语言 / 主题切换按钮 */
 QToolButton {{
     background: {t["surface"]};
     color: {t["text_1"]};
     border: 1px solid {t["border"]};
     border-radius: 6px;
-    padding: 2px 10px;
+    padding: 4px 10px;
 }}
 QToolButton:hover {{ border-color: {t["primary"]}; color: {t["primary"]}; }}
 QToolButton::menu-indicator {{ image: none; width: 0; }}

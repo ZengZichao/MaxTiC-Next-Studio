@@ -62,6 +62,35 @@ def _format_summary_safe(result) -> str:
         return "(summary unavailable)"
 
 
+def _write_english_report(result, emit) -> None:
+    """在中文报告成功生成后，补写英文版（``<prefix>.en.html``）。
+
+    中文报告由核心在 ``api.rank`` 内写出（``<prefix>.html``）；英文版在此按同一
+    数据与模板渲染，保持两份内容一致。失败只记日志、不影响运行结果 ——
+    报告是可选特性，与核心的降级策略一致。
+    """
+    zh_path = getattr(result, "html_report_file", "")
+    if not zh_path or not str(zh_path).endswith(".html"):
+        return
+    emit(_("log_report_en_started") + "\n")
+    try:
+        from maxtic_next.report.html import write_html_report
+
+        en_path = str(zh_path)[: -len(".html")] + ".en.html"
+        written = write_html_report(
+            "",
+            result,
+            sensitivity_summary=getattr(result, "sensitivity_summary", None),
+            lang="en",
+            path=en_path,
+            # 英文版是中文版的同源衍生产物：每次运行重写，不走 --force 覆盖守卫
+            force=True,
+        )
+        result.html_report_file_en = written
+    except Exception as exc:  # noqa: BLE001 - 第二语言失败不阻断结果
+        emit(_("log_report_en_failed").format(f"{type(exc).__name__}: {exc}"))
+
+
 class RunEngine(QThread):
     """在后台线程执行 ``api.rank``，流式推送 stdout 与结果。
 
@@ -139,6 +168,9 @@ class RunEngine(QThread):
             if self._token.should_stop():
                 self.cancelled.emit()
                 return
+
+            # 中文报告已由核心写出；此处补写英文版，交付中英两份
+            _write_english_report(result, self._emit)
 
             self.stage_changed.emit("stage_render")
             self.finished_ok.emit(result, elapsed)

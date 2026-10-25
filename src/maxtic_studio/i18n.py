@@ -42,6 +42,7 @@ _ZH: Dict[str, str] = {
     "action_start": "开始",
     "action_cancel": "取消",
     "action_demo": "用示例数据演示",
+    "demo_hint": "没有自己的数据？",
     "action_toggle_log": "切换日志可见",
     "action_reset_layout": "重置布局",
     "action_language": "语言",
@@ -161,24 +162,41 @@ _ZH: Dict[str, str] = {
     "tab_chart": "排名图",
     "col_rank": "排名",
     "col_node": "节点标签",
-    # ：这不是"MTC 分数"，而是"把该节点移到序首 / 序尾时目标函数的变化量"
-    "col_value": "Δ目标值（移序首/移序尾）",
+    # ：这不是"MTC 分数"，而是"把该节点移到序首 / 序尾时目标函数的变化量"。
+    #   拆成两列并配说明行，避免 "+3 / -1" 这种一眼看不懂的合并写法。
+    "col_delta_front": "Δ 移到序首",
+    "col_delta_back": "Δ 移到序尾",
     "col_informative": "信息性",
+    "table_hint": (
+        "Δ 含义：把该节点单独移到排序最前（最古老端）或最后（最年轻端）时，"
+        "被违反的信息性约束权重之和的变化量。负值 = 移过去后排序更一致；"
+        "|Δ| 越大表示该节点当前位置对整体排序越关键。"
+    ),
     "button_open_report": "在外部浏览器打开 HTML 报告",
+    "report_lang_zh": "中文报告",
+    "report_lang_en": "English report",
     "button_export_csv": "导出 CSV",
     "button_export_png": "导出 PNG",
     "button_export_pdf": "导出 PDF",
     "no_results": "尚无结果。运行排序后此处显示排名表与图。",
     "empty_guide_title": "还没有结果",
-    "empty_guide_steps": "\n① 选择物种树文件\n② 添加约束文件\n③ 点击「运行」开始排序",
+    "empty_guide_steps": (
+        "\n① 选择物种树文件\n② 添加约束文件（或点「输入」区的「用示例数据演示」）"
+        "\n③ 点击「运行」开始排序"
+    ),
     "metric_ranked": "排名节点数",
     "metric_informative": "信息性节点",
     "metric_conflicts": "冲突数",
     "metric_time": "用时",
     "error_card_text": "运行失败，请查看底部日志。",
     "chart_unavailable": "图表组件不可用：未安装 matplotlib。\n排名表仍可正常查看与导出。",
-    "chart_title": "节点位置敏感性（移到序首/序尾的目标值变化幅度）",
-    "chart_axis_score": "目标值变化幅度（非 MTC 分数）",
+    "chart_title": "各节点的位置敏感性（按排名从上到下）",
+    "chart_axis_score": "位置敏感性幅度 |Δ首 − Δ尾|（非 MTC 分数）",
+    "chart_hint": (
+        "读图：每个节点一根横条；长度 = 位置敏感性幅度，即「移到序首」与「移到序尾」"
+        "两个方向目标值变化量的差。条越长，该节点在排序中的位置对整体结果影响越大；"
+        "深色 = 该节点出现在信息性约束中。Δ 不是 MTC 分数（MaxTiC 未定义逐节点分数）。"
+    ),
     # ：逐节点量的 tooltip（明确它不是 MTC 分数）
     "tooltip_node_impact": (
         "目标值变化：把本节点移到「序首 / 序尾」后被违反的"
@@ -222,6 +240,8 @@ _ZH: Dict[str, str] = {
         "stdout 捕获已被另一个任务占用：本任务改为在结束后"
         "直接渲染结果摘要，避免两个任务的日志互相串台。"
     ),
+    "log_report_en_started": "正在生成英文版 HTML 报告…",
+    "log_report_en_failed": "英文版 HTML 报告生成失败（不影响运行结果）：{}",
     "task_still_running": "任务仍在运行中",
     "task_still_running_hint": "等待 5 秒后任务仍未完成。是否强制关闭窗口？强制关闭可能丢失数据。",
     "yes": "是",
@@ -258,6 +278,7 @@ _EN: Dict[str, str] = {
     "action_start": "Start",
     "action_cancel": "Cancel",
     "action_demo": "Run Demo",
+    "demo_hint": "No data at hand?",
     "action_toggle_log": "Toggle Log Visibility",
     "action_reset_layout": "Reset Layout",
     "action_language": "Language",
@@ -386,23 +407,43 @@ _EN: Dict[str, str] = {
     "tab_chart": "Ranking Chart",
     "col_rank": "Rank",
     "col_node": "Node Label",
-    "col_value": "Δ objective (move to front/back)",
+    "col_delta_front": "Δ move to front",
+    "col_delta_back": "Δ move to back",
     "col_informative": "Informative",
+    "table_hint": (
+        "Δ meaning: the change of the violated informative-constraint weight sum "
+        "when this single node is moved to the front (oldest end) or the back "
+        "(youngest end) of the delivered order. Negative = moving there yields a "
+        "more consistent order; larger |Δ| means the node's current position "
+        "matters more for the overall ranking."
+    ),
     "button_open_report": "Open HTML Report",
+    "report_lang_zh": "中文报告",
+    "report_lang_en": "English report",
     "button_export_csv": "Export CSV",
     "button_export_png": "Export PNG",
     "button_export_pdf": "Export PDF",
     "no_results": "No results yet. Run ranking to see the table and chart here.",
     "empty_guide_title": "No results yet",
-    "empty_guide_steps": '\n① Choose a species tree file\n② Add constraint files\n③ Click "Run" to start ranking',
+    "empty_guide_steps": (
+        '\n① Choose a species tree file\n② Add constraint files (or click "Run Demo" '
+        'in the Input panel)\n③ Click "Run" to start ranking'
+    ),
     "metric_ranked": "Ranked Nodes",
     "metric_informative": "Informative Nodes",
     "metric_conflicts": "Conflicts",
     "metric_time": "Time",
     "error_card_text": "Run failed. See the log below.",
     "chart_unavailable": "Chart unavailable: matplotlib is not installed.\nThe ranking table remains available.",
-    "chart_title": "Node position sensitivity (Δ objective: front vs back)",
-    "chart_axis_score": "Objective change amplitude (not an MTC score)",
+    "chart_title": "Position sensitivity per node (ranked top to bottom)",
+    "chart_axis_score": "Sensitivity |Δfront − Δback| (not an MTC score)",
+    "chart_hint": (
+        "How to read: one bar per node; its length is the position-sensitivity "
+        "amplitude, i.e. the gap between the objective change of moving the node "
+        "to the front and to the back of the order. Longer bars mean the node's "
+        "position matters more; dark bars = nodes appearing in informative "
+        "constraints. Δ is not an MTC score (MaxTiC defines no per-node score)."
+    ),
     "tooltip_node_impact": (
         "Objective delta: change of the violated informative-"
         "constraint weight when this node is moved to the "
@@ -454,6 +495,8 @@ _EN: Dict[str, str] = {
         "renders the summary from the Result object instead, "
         "so the two tasks' logs cannot interleave."
     ),
+    "log_report_en_started": "Writing the English HTML report…",
+    "log_report_en_failed": "Failed to write the English HTML report (result unaffected): {}",
     "task_still_running": "Task is still running",
     "task_still_running_hint": "The task did not finish within 5 seconds. Force close the window? Data may be lost.",
     "yes": "Yes",
