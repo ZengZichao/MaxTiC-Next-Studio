@@ -540,8 +540,7 @@ class ResultPanel(QWidget):
         # 按钮
         self._set_buttons(True)
         has_report = bool(
-            getattr(result, "html_report_file", "")
-            or getattr(result, "html_report_file_en", "")
+            getattr(result, "html_report_file", "") or getattr(result, "html_report_file_en", "")
         )
         self.btn_report.setEnabled(has_report)
 

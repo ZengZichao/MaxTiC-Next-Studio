@@ -134,9 +134,7 @@ def test_all_buttons_share_one_height(main_window):
 
     from maxtic_studio import metrics as M
 
-    heights = {
-        w.minimumHeight() for w in main_window.findChildren(QPushButton)
-    }
+    heights = {w.minimumHeight() for w in main_window.findChildren(QPushButton)}
     assert heights <= {M.BUTTON_H}, heights
     run_h = main_window.btn_run.minimumHeight()
     cancel_h = main_window.btn_cancel.minimumHeight()
