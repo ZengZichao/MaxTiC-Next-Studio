@@ -26,10 +26,10 @@ from PySide6.QtWidgets import (
 )
 
 # ---- 控件高度 ----
+# 全部交互控件统一 32px：旧版「运行 / 取消」独享 44px 主按钮高度，与 28px 小按钮、
+# 32px 输入框混在一屏里大小参差；现收敛为单一高度令牌，视觉一致。
 CONTROL_H = 32  # 输入类：QLineEdit / QComboBox / QSpinBox / QToolButton
-BUTTON_H = 34  # 普通按钮
-SMALL_BUTTON_H = 28  # btn_small（浏览 / 日志工具条 / 演示）
-PRIMARY_BUTTON_H = 44  # 运行 / 取消
+BUTTON_H = 32  # 全部 QPushButton（运行 / 取消 / 浏览 / 演示 / 导出……同一高度）
 
 # ---- 间距 ----
 GROUP_SPACING = 10  # 分组框之间
@@ -43,8 +43,8 @@ METRIC_CARD_H = 60  # 指标卡高度
 
 # ---- 字号（pt）。全部在代码里 setFont，QSS 不写 font-size ----
 FONT_BASE_PT = 13
-FONT_SMALL_PT = 11  # btn_small
-FONT_PRIMARY_PT = 14  # 运行按钮 / 空状态引导
+FONT_SMALL_PT = 11  # 表单内说明文字（fieldHint）
+FONT_PRIMARY_PT = 14  # 空状态引导
 FONT_METRIC_VALUE_PT = 20
 FONT_METRIC_TITLE_PT = 11
 FONT_HINT_PT = 11  # 表单内说明文字
@@ -90,16 +90,8 @@ def enforce_metrics(root: QWidget) -> QWidget:
         if isinstance(w, (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QToolButton)):
             _min_height(w, CONTROL_H)
         elif isinstance(w, QPushButton):
-            if name == "btn_run":
-                w.setFont(font(FONT_PRIMARY_PT, bold=True))
-                _min_height(w, PRIMARY_BUTTON_H)
-            elif name == "btn_cancel":
-                _min_height(w, PRIMARY_BUTTON_H)
-            elif name == "btn_small":
-                w.setFont(font(FONT_SMALL_PT))
-                _min_height(w, SMALL_BUTTON_H)
-            else:
-                _min_height(w, BUTTON_H)
+            # 所有按钮同一高度、同一字号：不再有 44px 主按钮 / 28px 小按钮的分层
+            _min_height(w, BUTTON_H)
         elif isinstance(w, QLabel):
             if name == "metricValue":
                 w.setFont(font(FONT_METRIC_VALUE_PT, bold=True))

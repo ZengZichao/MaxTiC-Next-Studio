@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import Qt, QUrl, Signal
+from PySide6.QtCore import QEvent, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QFont
 from PySide6.QtWidgets import (
     QApplication,
@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMenu,
     QMessageBox,
     QPushButton,
     QTabWidget,
@@ -208,6 +209,22 @@ class _ChartWidget(QWidget):
         ax.title.set_color(theme["text"])
         ax.xaxis.label.set_color(theme["text"])
 
+        # 竖向参考网格 + 条端数值标注：不看坐标轴也能直接读出每个节点的幅度，
+        # 这是旧图"只有条形没有数字"导致难读的主因
+        ax.xaxis.grid(True, color=theme["border"], linestyle=":", linewidth=0.6)
+        ax.set_axisbelow(True)
+        # 0 值节点也标 "0"，避免"没有条的节点"被误读成缺数据
+        ax.bar_label(
+            bars,
+            fmt="%.4g",
+            padding=3,
+            fontsize=8,
+            color=theme["muted"],
+        )
+        # 右侧留出数值标注的空间
+        xmax = max(scores) if scores else 1.0
+        ax.set_xlim(0, max(xmax * 1.12, xmax + 1e-9))
+
         # 色盲友好图例（深青绿 / 浅青绿 + 文字）
         from matplotlib.patches import Patch
 
@@ -232,8 +249,6 @@ class _ChartWidget(QWidget):
 
 class ResultPanel(QWidget):
     """结果面板：指标卡 + 表格 + 图 + 报告按钮 + 空/错误态。"""
-
-    demo_requested = Signal()
 
     # 面板状态：empty（运行前引导）/ results（结果）/ dry（预检报告）/ error（错误卡）
     _MODE_EMPTY, _MODE_RESULTS, _MODE_DRY, _MODE_ERROR = "empty", "results", "dry", "error"
@@ -297,25 +312,53 @@ class ResultPanel(QWidget):
         self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.table_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.table_view.setAlternatingRowColors(True)
-        # 行号表头与「排名」列重复；列宽自适应并让节点标签列吃掉剩余宽度，
+        # 行号表头与「排名」列重复；行高自适应并让节点标签列吃掉剩余宽度，
         # 消除表格右侧的整段空白
         self.table_view.verticalHeader().setVisible(False)
         header = self.table_view.horizontalHeader()
+        # 全部列 Interactive：用户可以拖拽任意列的分隔线调整相对宽度。
+        # 旧版把「排名 / Δ / 信息性」设成 ResizeToContents、「节点标签」设成 Stretch，
+        # 这两种模式下 Qt 都禁止用户拖拽 —— 结果一列都拖不动。
+        # 现在初值由 _fit_columns() 按内容分配，「节点标签」列吃掉剩余宽度由
+        # _fit_node_column() 在视口变化时补足；两处都不改变 Interactive 模式，
+        # 拖拽始终可用。
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
-        self.tabs.addTab(self.table_view, _("tab_table"))
+        header.setStretchLastSection(False)
+        header.setSectionsClickable(True)
+        header.setToolTip(_("table_hint"))
+        header.setFixedHeight(30)
+
+        # 表格页 = 表 + 一行 Δ 含义说明（列名本身只能给短语，语义放这里讲透）
+        table_page = QWidget()
+        table_layout = QVBoxLayout(table_page)
+        table_layout.setContentsMargins(0, 0, 0, 0)
+        table_layout.setSpacing(4)
+        table_layout.addWidget(self.table_view, 1)
+        self.table_hint_label = QLabel(_("table_hint"))
+        self.table_hint_label.setObjectName("fieldHint")
+        self.table_hint_label.setWordWrap(True)
+        table_layout.addWidget(self.table_hint_label)
+        self.tabs.addTab(table_page, _("tab_table"))
 
         self.chart_widget = _ChartWidget()
-        self.tabs.addTab(self.chart_widget, _("tab_chart"))
+        # 图表页 = 图 + 一行读图说明
+        chart_page = QWidget()
+        chart_layout = QVBoxLayout(chart_page)
+        chart_layout.setContentsMargins(0, 0, 0, 0)
+        chart_layout.setSpacing(4)
+        chart_layout.addWidget(self.chart_widget, 1)
+        self.chart_hint_label = QLabel(_("chart_hint"))
+        self.chart_hint_label.setObjectName("fieldHint")
+        self.chart_hint_label.setWordWrap(True)
+        chart_layout.addWidget(self.chart_hint_label)
+        self.tabs.addTab(chart_page, _("tab_chart"))
         self.tabs.setVisible(False)
         glayout.addWidget(self.tabs, 1)
 
-        # ---- 按钮行：报告 / 演示 一行，导出 一行 ----
+        # ---- 按钮行：报告 一行，导出 一行 ----
         # 单行排 5 个按钮时，窄窗口下这一行的最小宽度超过结果区可用宽度，
         # 按钮会互相压字；拆两行后每行都能在自己的空间里放下。
+        # 「用示例数据演示」不属于结果区动作，已移到左侧输入面板（见 input_panel）。
         self.btn_report = QPushButton(_("button_open_report"))
         self.btn_report.setEnabled(False)
         self.btn_report.clicked.connect(self._open_report)
@@ -328,15 +371,11 @@ class ResultPanel(QWidget):
         self.btn_pdf = QPushButton(_("button_export_pdf"))
         self.btn_pdf.setEnabled(False)
         self.btn_pdf.clicked.connect(self._export_pdf)
-        self.btn_demo = QPushButton(_("action_demo"))
-        self.btn_demo.setObjectName("btn_small")
-        self.btn_demo.clicked.connect(self.demo_requested.emit)
 
         primary_row = QHBoxLayout()
         primary_row.setSpacing(M.FIELD_SPACING)
         primary_row.addWidget(self.btn_report)
         primary_row.addStretch()
-        primary_row.addWidget(self.btn_demo)
         export_row = QHBoxLayout()
         export_row.setSpacing(M.FIELD_SPACING)
         export_row.addWidget(self.btn_csv)
@@ -349,6 +388,35 @@ class ResultPanel(QWidget):
             glayout.addWidget(holder)
 
         layout.addWidget(group)
+
+        # 视口尺寸变化时把剩余宽度分给节点标签列（不影响手动拖拽的 Interactive 语义）
+        self.table_view.viewport().installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if obj is self.table_view.viewport() and event.type() == QEvent.Type.Resize:
+            self._fit_node_column()
+        return super().eventFilter(obj, event)
+
+    # ------------------------------------------------------------------
+    # 列宽
+    # ------------------------------------------------------------------
+    def _fit_columns(self) -> None:
+        """按内容初始化各列宽度：内容列自适应，「节点标签」列吃掉剩余宽度。"""
+        tv = self.table_view
+        for col in (0, 2, 3, 4):
+            tv.resizeColumnToContents(col)
+        # 排名 / 信息性两列内容极窄，加一点内边距避免表头文字被裁
+        tv.setColumnWidth(0, max(tv.columnWidth(0), 56))
+        tv.setColumnWidth(4, max(tv.columnWidth(4), 64))
+        self._fit_node_column()
+
+    def _fit_node_column(self) -> None:
+        """把表格视口的剩余宽度分给「节点标签」列（保持可拖拽）。"""
+        tv = self.table_view
+        fixed = sum(tv.columnWidth(c) for c in (0, 2, 3, 4))
+        avail = tv.viewport().width() - fixed
+        if avail >= 80:
+            tv.setColumnWidth(1, avail)
 
     def _wire_links(self):
         # 表↔图联动：选中行 → 高亮图中对应条
@@ -377,11 +445,17 @@ class ResultPanel(QWidget):
             card.retranslate()
         self.tabs.setTabText(0, _("tab_table"))
         self.tabs.setTabText(1, _("tab_chart"))
+        self.table_hint_label.setText(_("table_hint"))
+        self.chart_hint_label.setText(_("chart_hint"))
+        self.table_view.horizontalHeader().setToolTip(_("table_hint"))
+        # 列头文案随模型 headerData 变化，显式通知表头重取
+        self.table_model.headerDataChanged.emit(
+            Qt.Orientation.Horizontal, 0, self.table_model.columnCount() - 1
+        )
         self.btn_report.setText(_("button_open_report"))
         self.btn_csv.setText(_("button_export_csv"))
         self.btn_png.setText(_("button_export_png"))
         self.btn_pdf.setText(_("button_export_pdf"))
-        self.btn_demo.setText(_("action_demo"))
         # 图表标题/图例语言刷新
         if self._mode == self._MODE_RESULTS:
             self.chart_widget.update_chart(self.table_model.get_node_scores())
@@ -458,13 +532,17 @@ class ResultPanel(QWidget):
         # 先填充表格模型，指标卡再从模型读取统计（顺序颠倒会把 0 写进卡片）
         self.table_model.populate_from_result(result)
         self._update_metrics(result)
+        self._fit_columns()
 
         # 表格 + 图
         self.chart_widget.update_chart(self.table_model.get_node_scores())
 
         # 按钮
         self._set_buttons(True)
-        has_report = bool(getattr(result, "html_report_file", ""))
+        has_report = bool(
+            getattr(result, "html_report_file", "")
+            or getattr(result, "html_report_file_en", "")
+        )
         self.btn_report.setEnabled(has_report)
 
     def _update_metrics(self, result):
@@ -491,10 +569,35 @@ class ResultPanel(QWidget):
     # ------------------------------------------------------------------
     # 导出 / 打开
     # ------------------------------------------------------------------
+    def _report_candidates(self):
+        """当前结果可打开的报告 ``[(显示名, 路径), …]``（中文在前，英文在后）。
+
+        每次运行同时产出中文（``<prefix>.html``）与英文（``<prefix>.en.html``）
+        两份报告；只有一份时按钮直接打开，两份都在时弹出语言选择菜单。
+        """
+        if self._result is None:
+            return []
+        candidates = []
+        if getattr(self._result, "html_report_file", ""):
+            candidates.append((_("report_lang_zh"), self._result.html_report_file))
+        if getattr(self._result, "html_report_file_en", ""):
+            candidates.append((_("report_lang_en"), self._result.html_report_file_en))
+        return candidates
+
     def _open_report(self):
-        if self._result and self._result.html_report_file:
-            url = QUrl.fromLocalFile(self._result.html_report_file)
-            QDesktopServices.openUrl(url)
+        candidates = self._report_candidates()
+        if not candidates:
+            return
+        if len(candidates) == 1:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(candidates[0][1]))
+            return
+        menu = QMenu(self)
+        for label, path in candidates:
+            act = menu.addAction(label)
+            act.triggered.connect(
+                lambda checked=False, p=path: QDesktopServices.openUrl(QUrl.fromLocalFile(p))
+            )
+        menu.exec(self.btn_report.mapToGlobal(self.btn_report.rect().bottomLeft()))
 
     def _export_csv(self):
         path, _selected_filter = QFileDialog.getSaveFileName(

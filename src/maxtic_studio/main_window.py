@@ -286,8 +286,8 @@ class MainWindow(QMainWindow):
         self.input_panel.data_changed.connect(self._update_cli_preview)
         self.advanced_panel.data_changed.connect(self._update_cli_preview)
         self._update_cli_preview()
-        # 结果区空状态「用示例数据演示」按钮
-        self.result_panel.demo_requested.connect(self._load_demo)
+        # 示例数据入口在左侧输入面板（输入动作就近放输入区）
+        self.input_panel.demo_requested.connect(self._load_demo)
 
     def _build_toolbar(self) -> QWidget:
         """顶部工具条：运行 / 取消 / 预设 / 语言 / 主题 / 进度 / 状态。"""

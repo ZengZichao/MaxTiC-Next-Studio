@@ -131,11 +131,16 @@ class RankingTableModel(QAbstractTableModel):
     # ------------------------------------------------------------------
     # Qt 模型接口
     # ------------------------------------------------------------------
+    # 列布局：0 排名 | 1 节点标签 | 2 Δ移到序首 | 3 Δ移到序尾 | 4 信息性。
+    # 旧版把两个 Δ 合并成 "+3 / -1" 一列（"Δ目标值（移序首/移序尾）"），用户读不懂；
+    # 拆成两列后每个数字语义单一，配合表格下方的说明行（result_panel.table_hint）自解释。
+    COL_RANK, COL_NODE, COL_FRONT, COL_BACK, COL_INFO = range(5)
+
     def rowCount(self, parent=None) -> int:
         return len(self._rows)
 
     def columnCount(self, parent=None) -> int:
-        return 4
+        return 5
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
@@ -145,13 +150,15 @@ class RankingTableModel(QAbstractTableModel):
         _rank, node, d_front, d_back, _amp, is_info, degen = row
 
         if role == Qt.ItemDataRole.DisplayRole:
-            if col == 0:
+            if col == self.COL_RANK:
                 return str(_rank)
-            elif col == 1:
+            elif col == self.COL_NODE:
                 return node
-            elif col == 2:
-                return f"{d_front:+g} / {d_back:+g}"
-            elif col == 3:
+            elif col == self.COL_FRONT:
+                return f"{d_front:+g}"
+            elif col == self.COL_BACK:
+                return f"{d_back:+g}"
+            elif col == self.COL_INFO:
                 return "✓" if is_info else ""
         elif role == Qt.ItemDataRole.ToolTipRole:
             return (
@@ -161,7 +168,7 @@ class RankingTableModel(QAbstractTableModel):
                 + (("\n" + _("tooltip_impact_degenerate")) if degen else "")
             )
         elif role == Qt.ItemDataRole.TextAlignmentRole:
-            if col in (0, 2, 3):
+            if col != self.COL_NODE:
                 return Qt.AlignmentFlag.AlignCenter
             return Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
         elif role == Qt.ItemDataRole.BackgroundRole:
@@ -170,12 +177,25 @@ class RankingTableModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if role != Qt.ItemDataRole.DisplayRole:
-            return None
-        if orientation == Qt.Orientation.Horizontal:
-            headers = [_("col_rank"), _("col_node"), _("col_value"), _("col_informative")]
+        if orientation != Qt.Orientation.Horizontal:
+            return str(section + 1) if role == Qt.ItemDataRole.DisplayRole else None
+        if role == Qt.ItemDataRole.DisplayRole:
+            headers = [
+                _("col_rank"),
+                _("col_node"),
+                _("col_delta_front"),
+                _("col_delta_back"),
+                _("col_informative"),
+            ]
             return headers[section] if section < len(headers) else ""
-        return str(section + 1)
+        if role == Qt.ItemDataRole.ToolTipRole:
+            tips = {
+                self.COL_FRONT: _("table_hint"),
+                self.COL_BACK: _("table_hint"),
+                self.COL_INFO: _("tooltip_node_impact"),
+            }
+            return tips.get(section)
+        return None
 
     def to_csv(self) -> str:
         """导出为 CSV 字符串（使用 csv.writer 正确转义字段）。"""
@@ -183,9 +203,25 @@ class RankingTableModel(QAbstractTableModel):
 
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow([_("col_rank"), _("col_node"), _("col_value"), _("col_informative")])
+        w.writerow(
+            [
+                _("col_rank"),
+                _("col_node"),
+                _("col_delta_front"),
+                _("col_delta_back"),
+                _("col_informative"),
+            ]
+        )
         for rank, node, d_front, d_back, _amp, info, _degen in self._rows:
-            w.writerow([rank, node, f"{d_front:+g} / {d_back:+g}", _("yes") if info else _("no")])
+            w.writerow(
+                [
+                    rank,
+                    node,
+                    f"{d_front:+g}",
+                    f"{d_back:+g}",
+                    _("yes") if info else _("no"),
+                ]
+            )
         return buf.getvalue()
 
     def get_node_scores(self) -> List[Tuple[str, float, bool]]:
