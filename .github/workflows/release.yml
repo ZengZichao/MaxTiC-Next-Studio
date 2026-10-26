@@ -17,7 +17,7 @@ permissions:
 env:
   CORE_REPO_URL: https://github.com/ZengZichao/MaxTiC-Next
   # 与 ci.yml 保持一致：核心仓发新版本时两处同步 bump
-  CORE_REF: v0.1.1
+  CORE_REF: v0.2.0
 
 jobs:
   release:
