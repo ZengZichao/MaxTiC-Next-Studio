@@ -19,7 +19,7 @@ env:
   CORE_REPO_URL: https://github.com/ZengZichao/MaxTiC-Next
   # CI/发布统一锁核心仓 tag：核心 main 一变就会把本仓 CI 打红，构建也不可复现。
   # 核心仓发新版本时同步 bump 这里（release.yml 引用同一变量）。
-  CORE_REF: v0.1.1
+  CORE_REF: v0.2.0
 
 jobs:
   # ------------------------------------------------------------ GUI 层测试

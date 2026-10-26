@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MaxTiC-Next-Studio"
-version = "0.1.1"
+version = "0.2.0"
 description = "Native desktop front-end (PySide6) for MaxTiC-Next: rank species-tree internal nodes by Maximum Time Consistency."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -31,11 +31,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 # 核心算法来自独立仓库 MaxTiC-Next（https://github.com/ZengZichao/MaxTiC-Next）。
-# 该包尚未发布到 PyPI，安装本仓库前先按仓库地址装它：
-#   pip install "git+https://github.com/ZengZichao/MaxTiC-Next.git"
-# 一旦发布到 PyPI，下面这条依赖无需改动即可由索引解析。
+# 双语 HTML 报告依赖核心的 lang 参数（0.2.0 起）；依赖下限随之钉住。
 dependencies = [
-    "MaxTiC-Next>=0.1.0",
+    "MaxTiC-Next>=0.2.0",
     "PySide6>=6.5",
     "matplotlib>=3.7",
 ]
