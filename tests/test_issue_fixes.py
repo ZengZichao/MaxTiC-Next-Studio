@@ -190,11 +190,11 @@ def test_english_report_written_next_to_chinese(tmp_path):
 
     from maxtic_studio.run_engine import _write_english_report
 
-    data = ROOT.parent / "MaxTiC-Next-项目代码" / "tests" / "data"
+    # 用本仓库自带的测试数据（与 examples/ 同一份），不再依赖旧布局的
+    # 同级目录 ../MaxTiC-Next-项目代码 —— 那个路径早已不存在，会让本用例永久跳过。
+    data = ROOT / "tests" / "data"
     tree = data / "minitree.tree"
     cons = data / "Cyano_CUTConstraints.tsv"
-    if not tree.is_file():
-        pytest.skip("核心仓库测试数据不可用")
     prefix = str(tmp_path / "r")
     r = rank(
         str(tree),
